@@ -1,0 +1,37 @@
+diff --git a/node_modules/@langchain/pinecone/dist/vectorstores.js b/node_modules/@langchain/pinecone/dist/vectorstores.js
+index 7c117d6..d409350 100644
+--- a/node_modules/@langchain/pinecone/dist/vectorstores.js
++++ b/node_modules/@langchain/pinecone/dist/vectorstores.js
+@@ -209,15 +209,23 @@ var PineconeStore = class PineconeStore extends VectorStore {
+ 		});
+ 		const optionsNamespace = !Array.isArray(options) && options?.namespace ? options.namespace : this.namespace;
+ 		const namespace = this.pineconeIndex.namespace(optionsNamespace ?? "");
+-		const batchRequests = chunkArray(pineconeVectors, 100).map((chunk) => this.caller.call(async () => {
+-			try {
+-				await namespace.upsert(chunk);
+-			} catch (e) {
+-				if (e.message.includes("404")) e.statusCode = 404;
+-				throw e;
+-			}
+-		}));
+-		await Promise.all(batchRequests);
++		try {
++			await namespace.upsert({ records:  pineconeVectors });
++		} catch (e) {
++			if (e.message.includes("404")) e.statusCode = 404;
++			throw e;
++		}
++		// const batchRequests = chunkArray(pineconeVectors, 100).map((chunk) => this.caller.call(async () => {
++		// 	try {
++		// 		console.log('chunk ---', chunk)
++		// 		await namespace.upsert({ records: [{ id: '1234', ...chunk}] });
++		// 	} catch (e) {
++		// 		console.log('namespace error ---', e)
++		// 		if (e.message.includes("404")) e.statusCode = 404;
++		// 		throw e;
++		// 	}
++		// }));
++		// await Promise.all(batchRequests);
+ 		return documentIds;
+ 	}
+ 	/**

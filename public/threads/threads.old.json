@@ -1,0 +1,30 @@
+[
+  {
+    "userId": "69f3bc34388fa6eddae3f5e3",
+    "threadId": "74e27b5b-32e2-460b-adfa-8b3e1b0dff8a",
+    "title": "New Thread",
+    "active": true,
+    "createdAt": "2026-05-09T20:38:25.307Z"
+  },
+  {
+    "userId": "69f3bc34388fa6eddae3f5e3",
+    "threadId": "bf369b12-e7e2-4359-b3bd-13a82313de51",
+    "title": "New Thread",
+    "active": true,
+    "createdAt": "2026-05-09T20:38:25.307Z"
+  },
+  {
+    "userId": "69f3bc34388fa6eddae3f5e3",
+    "threadId": "3888dc10-7533-47ff-ae09-8f23acd40033",
+    "title": "Friendly Greeting and Introduction",
+    "active": true,
+    "createdAt": "2026-05-09T20:44:19.787Z"
+  },
+  {
+    "userId": "69f3bc34388fa6eddae3f5e3",
+    "threadId": "38de4b7f-7537-440c-ad4d-832a3392a5b6",
+    "title": "New Thread",
+    "active": true,
+    "createdAt": "2026-05-09T20:53:14.182Z"
+  }
+]

@@ -18,7 +18,8 @@ export const messageSchema = z.object({
   userId: z.string(),
   threadId: z.string(),
   content: z.string(),
-  thinking: z.string().optional()
+  thinking: z.string().optional(),
+  sub_agent: z.any().array()
 })
 
 

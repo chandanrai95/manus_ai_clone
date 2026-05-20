@@ -89,11 +89,82 @@ ${assistantText}
         }
     }
 
+    async function streamAgentV1(userInput: string, config: any) {
+        await memoryManager.logInteraction("User", userInput, new Date());
+
+        const assembled = await contextAssembler.assemble(userInput, {})
+
+        const agentStream = await agent.stream({
+            messages: [{ role: 'user', content: assembled?.prompt }],
+        }, { streamMode: 'messages' })
+
+        let fullContent = "";
+        let fullThinking = "";
+        let inThinking = false;
+        for await (const [messageChunk, metadata] of agentStream) {
+            const messageType =
+                messageChunk?._getType?.() ||
+                messageChunk?.getType?.() ||
+                messageChunk?.type;
+
+            // Skip tool responses
+            if (messageType === "tool") {
+                console.log("Skipping tool response:", messageChunk.content);
+                continue;
+            }
+
+
+            let reasoning = messageChunk?.additional_kwargs?.reasoning_content ?? '' as any;
+            const text = messageChunk.content
+            
+            let content = ''
+            if (text) {
+                if (inThinking) {
+                    content = "</think>"
+                }
+                inThinking = false;
+                fullContent += text
+                content += text
+            } else if (!inThinking && reasoning) {
+                inThinking = true
+                fullThinking = `${reasoning}`
+                content = `<think>${reasoning}`
+            } else if (inThinking && reasoning) {
+                fullThinking = fullThinking + reasoning;
+                content = reasoning
+            }
+
+            if (content) {
+                config.writer({
+                    manager_name: "nodeA",
+                    content: content
+                })
+            }
+
+
+            // if (messageChunk.content) {
+            //     const text = messageChunk.content
+            //     fullContent += text
+
+            //     config.writer({
+            //         manager_name: "nodeA",
+            //         content: text
+            //     })
+            // }
+        }
+
+        await memoryManager.logInteraction("Assistant-1", fullContent, new Date());
+
+        // return `<think>${fullThinking}</think>\n\n${fullContent}`
+        return fullContent
+    }
+
     async function logLastAIMsg(fullAssistantText: string) {
-        await memoryManager.logInteraction('Assistant', fullAssistantText, new Date());
+        await memoryManager.logInteraction('Assistant-1', fullAssistantText, new Date());
     }
 
     return {
+        streamAgentV1,
         logLastAIMsg,
         run_agent,
         streamAgent

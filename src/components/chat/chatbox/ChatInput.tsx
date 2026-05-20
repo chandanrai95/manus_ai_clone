@@ -3,7 +3,7 @@
 import React, { memo } from "react";
 import { Loader2, SendHorizonal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import UploadFileButton from "./UploadFileButton";
+import ChatInputButtns from "./ChatInputButtns";
 
 type ChatInputProps = {
   input: string;
@@ -41,7 +41,7 @@ const ChatInput = memo(
           />
 
           <div className="mt-3 flex items-center justify-between">
-            <UploadFileButton pdfId={pdfId} />
+            <ChatInputButtns pdfId={pdfId} />
         
             <button
               onClick={sendMessage}

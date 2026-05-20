@@ -16,26 +16,36 @@ export default function Sidebar() {
   const dispatch = useDispatch<AppDispatch>();
 
   const { threads } = useSelector((state: RootState) => state.thread)
+  const { leftPanel } = useSelector((state: RootState) => state.chat)
+
   const router = useRouter()
   const params = useParams()
 
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(leftPanel === 'sidebar' ? true : false);
   // const [chatList, setChatList] = useState([
   //   { pdfId: "ddd", title: "Casual conversation" },
   //   { pdfId: "ddd", title: "Motivational Letter" },
   // ])
 
+  useEffect(() => {
+    if (leftPanel == 'sidebar') {
+      setMenuOpen(true)
+    } else {
+      setMenuOpen(false)
+    }
+  }, [leftPanel])
 
-  console.log('session --', session)  
+
+  console.log('session --', session)
   const userId = (session as any)?.user?.id;
   const activeThreadId = params?.threadId as string
 
   const selectThread = (threadId: string) => {
     router.push(`/chat/${threadId}`)
-  } 
+  }
 
   const refetchThreads = () => {
-      if (userId) {
+    if (userId) {
       dispatch(fetchThreads(userId))
     }
   }
@@ -52,7 +62,10 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="relative flex h-full overflow-hidden">
+    <div className={cn(
+      "relative h-full overflow-hidden",
+      leftPanel == "sidebar" ? "flex" : "none"
+    )}>
       <aside
         className={cn(
           "flex flex-col border-r bg-slate-50 transition-all duration-300 ease-in-out",
@@ -80,7 +93,7 @@ export default function Sidebar() {
                 const _onClick = () => selectThread(thread.threadId)
                 return (<MenuItem
                   onClick={_onClick}
-                  key={thread.userId}
+                  key={thread.threadId}
                   icon={<FileText size={16} />}
                   label={thread.title}
                   active={activeThreadId == thread.threadId}
@@ -91,7 +104,7 @@ export default function Sidebar() {
 
           {/* Footer */}
           <div className="mt-auto pt-4">
-              <AccountButton />
+            <AccountButton />
           </div>
         </div>
       </aside>

@@ -6,6 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function truncateTitle(title: string, maxLength = 26): string {
+  if (!title) return "";
+
+  return title.length > maxLength
+  ? title.substring(0, maxLength) + "..."
+  : title
+}
 
 // ✅ Success toast
 export const showSuccess = (message?: string) => {
@@ -33,3 +40,4 @@ export const showInfo = (message: string) => {
     theme: "light",
   });
 };
+

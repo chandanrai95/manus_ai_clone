@@ -3,6 +3,9 @@ import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { memo, useState } from "react";
 import { ConvertMarkdownToText } from "./ConvertToMarkdown";
 import { ChatMessage } from "@/lib/api/thread";
+import SubAgentVerticalUI from "./agent-ui/SubAgentVerticalUI";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 
 const MessageBubble = memo(function MessageBubble({
@@ -12,6 +15,8 @@ const MessageBubble = memo(function MessageBubble({
   message: ChatMessage;
   loading: boolean
 }) {
+
+
   const isUser = message.role === "user";
   const [showThinking, setShowThinking] = useState(false);
 
@@ -73,6 +78,7 @@ const MessageBubble = memo(function MessageBubble({
           </p>
         ) : (
           <div className="prose prose-sm max-w-none leading-relaxed px-1">
+            <SubAgentVerticalUI agents={message?.sub_agent} />
             <ConvertMarkdownToText text={message.content} />
           </div>
         )}

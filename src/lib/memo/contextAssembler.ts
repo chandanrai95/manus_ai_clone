@@ -40,7 +40,7 @@ export class ContextAssembler {
 
         // END fetch data from Vector DBs (pinecone and bm25)
 
-        console.log('relevantLongTermMemory ::', {relevantLongTermMemory, docToString})
+        // console.log('relevantLongTermMemory ::', {relevantLongTermMemory, docToString})
 
         const fixedLayers = [
             `# System Layer\n${system_prompt}`,
@@ -48,6 +48,8 @@ export class ContextAssembler {
             `# Relevant LTM Layer\n${relevantLongTermMemory || "No relevant long-term memory exist."}`,
             `# Recent STM Layer\n${todayLog}`
         ]
+
+        console.log('relevantLongTermMemory :: ', fixedLayers)
 
         const fixedText = fixedLayers.join("\n\n");
 

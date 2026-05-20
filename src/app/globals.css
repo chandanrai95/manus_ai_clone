@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -121,9 +122,80 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #8f8f8f rgba(255,255,255,0.5);
+    
+  }
+
+  /* Chrome, Edge, Safari */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: white;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #8f8f8f;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #6f6f6f;
+  }
+
+  /* Show scrollbar buttons */
+  *::-webkit-scrollbar-button {
+    display: block;
+    width: 8px;
+    height: 12px;
+    background-color: #6f6f6f;
+  }
+
+  /* Vertical up arrow */
+  *::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 7px 7px;
+    background-image: url("data:image/svg+xml,%3Csvg width='7' height='7' viewBox='0 0 7 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 1L6 5H1L3.5 1Z' fill='%23999999'/%3E%3C/svg%3E");
+  }
+
+  /* Vertical down arrow */
+  *::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 7px 7px;
+    background-image: url("data:image/svg+xml,%3Csvg width='7' height='7' viewBox='0 0 7 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 6L1 2H6L3.5 6Z' fill='%23999999'/%3E%3C/svg%3E");
+  }
+
+  /* Horizontal left arrow */
+  *::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 7px 7px;
+    background-image: url("data:image/svg+xml,%3Csvg width='7' height='7' viewBox='0 0 7 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 3.5L5 1V6L1 3.5Z' fill='%23999999'/%3E%3C/svg%3E");
+  }
+
+  /* Horizontal right arrow */
+  *::-webkit-scrollbar-button:single-button:horizontal:increment {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 7px 7px;
+    background-image: url("data:image/svg+xml,%3Csvg width='7' height='7' viewBox='0 0 7 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 3.5L2 6V1L6 3.5Z' fill='%23999999'/%3E%3C/svg%3E");
+  }
+
+
   /* html {
     @apply font-sans;
   } */

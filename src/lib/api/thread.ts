@@ -1,5 +1,6 @@
 import { Thread } from "@/store/threadSlice";
 import { makeHttpReq } from "../helper/makeHttpReq";
+import { AgentData } from "@/components/chat/chatbox/agent-ui/AIWorkspace";
 
 
 export async function getThreads(userId: string): Promise<Thread[]> {
@@ -31,6 +32,7 @@ export type ChatMessage = {
   thinking: string,
   userId: string,
   threadId: string
+  sub_agent: Array<AgentData>
 }
 
 export type ChatHistoryReturnType = { messages: ChatMessage[] }

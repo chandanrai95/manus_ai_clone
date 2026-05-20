@@ -20,9 +20,10 @@ import MessageBubble from "./chatbox/MessageBubble";
 import ChatInput from "./chatbox/ChatInput";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { addUsersAndAiPlaceholder, appendToAssistantThinking, appendToLastAiMessage, getChatHistory } from "@/store/chatSlice";
+import { addAgentFile, addAgentImage, addTodos, addUsersAndAiPlaceholder, appendToAssistantThinking, appendToLastAiMessage, appendToLastAiMessageSubAgent, clearTodos, getChatHistory, updateTodos } from "@/store/chatSlice";
 import { useSession } from "next-auth/react";
 import { fetchThreads } from "@/store/threadSlice";
+import { ViewReportModal } from "../modal/ViewReportModal";
 
 
 export default function ChatPanel({ threadId }: { threadId: string }) {
@@ -43,6 +44,9 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
 
   const thinkingQueueRef = useRef<string[]>([]);
   const thinkingTypingRef = useRef(false);
+
+  const subAgentQueueRef = useRef<Record<string, any>[]>([]);
+  const subAgentTypingRef = useRef(false);
 
   const userId = (session as any)?.user?.id
 
@@ -95,11 +99,28 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
     setTimeout(typeNext, 6);
   }
 
+  const typeSubAgentNextContent = () => {
+    if (subAgentQueueRef.current.length == 0) {
+      subAgentTypingRef.current = false;
+      return;
+    }
+
+    subAgentTypingRef.current = true
+
+    const chunk = subAgentQueueRef.current
+      .splice(0, 1)
+
+    const obj = chunk.pop()
+
+    dispatch(appendToLastAiMessageSubAgent(obj))
+    setTimeout(typeSubAgentNextContent, 6);
+  }
+
   const sendMessageApi = async (userMessage: string) => {
     try {
       setLoading(true)
 
-      const res = await fetch("/api/agent/streams", {
+      const res = await fetch("/api/agent/streams/v1", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -147,9 +168,57 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
               }
             }
 
+
+
+            // queue sub agents
+            if (data.sub_agent != undefined && data.sub_agent !== null) {
+              console.log('data.sub_agent ===========', data.sub_agent)
+              const jsonPayload = data?.sub_agent
+              subAgentQueueRef.current.push(jsonPayload)
+              if (!subAgentTypingRef.current) {
+                typeSubAgentNextContent()
+              }
+            }
+
+            // write file
+            if (data.write_file !== undefined && data.write_file !== null) {
+              const jsonPayload = data?.write_file
+              dispatch(addAgentFile(jsonPayload))
+            }
+
+            // read file
+            if (data.read_file !== undefined && data.read_file !== null) {
+              const jsonPayload = data?.read_file
+              dispatch(addAgentFile(jsonPayload))
+            }
+
+            // image
+
+            // todos
+            if (data.todo_list !== undefined && data.todo_list !== null) {
+              try {
+                const jsonPayload = JSON.parse(data?.todo_list?.todoList) as any
+
+                dispatch(clearTodos())
+                dispatch(addTodos(jsonPayload))
+              } catch (error) {
+                console.log('Failed to parse todos')
+              }
+            }
+
+            // update todos
+            if (data.update_todo !== undefined && data.update_todo !== null) {
+              try {
+                const jsonPayload = data?.update_todo
+                console.log("update todos :: ", jsonPayload)
+                dispatch(updateTodos(jsonPayload))
+              } catch (error) {
+                console.log('Failed to parse todos')
+              }
+            }
+
             if (data.thinking !== undefined && data.thinking !== null) {
               for (let char of data.thinking) {
-                console.log('---', char)
                 thinkingQueueRef.current.push(char)
               }
 
@@ -161,7 +230,7 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
 
           if (trimmed.startsWith("event:")) {
             const eventType = trimmed.replace("event:", "").trim();
-            
+
             if (eventType == "updateThread") {
               if (userId) {
                 dispatch(fetchThreads(userId))
@@ -221,6 +290,118 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
   //   }
   // }, [messages, loading]);
 
+  const runSimulation = (dispatch: any) => {
+
+    const events = [
+      () => dispatch(addAgentImage({
+        src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80"
+      })),
+
+      () => dispatch(addAgentFile({
+        filename: "server.js",
+        content: `const express = require('express');
+
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello from AI Server');
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});`
+      })),
+
+      () => dispatch(addAgentFile({
+        filename: "package.json",
+        content: `{
+  "name": "basic-node-app",
+  "version": "1.0.0",
+  "description": "Basic Node.js Express app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}`
+      })),
+
+      () => dispatch(addAgentFile({
+        filename: ".env",
+        content: `PORT=3000`
+      })),
+
+      () => dispatch(addAgentImage({
+        src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&auto=format&fit=crop&q=80"
+      })),
+
+      () => dispatch(addAgentImage({
+        src: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&auto=format&fit=crop&q=80"
+      })),
+
+      () => dispatch(addAgentFile({
+        filename: ".gitignore",
+        content: `node_modules
+.env
+.DS_Store
+npm-debug.log`
+      })),
+
+      () => dispatch(addAgentImage({
+        src: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1200&auto=format&fit=crop&q=80"
+      })),
+
+      () => dispatch(addAgentFile({
+        filename: "README.md",
+        content: `# Basic Node.js App
+
+## Install dependencies
+
+\`\`\`bash
+npm install
+\`\`\`
+
+## Run in development
+
+\`\`\`bash
+npm run dev
+\`\`\`
+
+## Run in production
+
+\`\`\`bash
+npm start
+\`\`\`
+
+## API Routes
+
+### GET /
+Returns a basic hello message.
+
+### GET /health
+Returns server health status.`
+      })),
+    ];
+
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index >= events.length) {
+        clearInterval(interval);
+        return;
+      }
+      events[index++]();
+    }, 600);
+
+  };
+
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
@@ -232,7 +413,7 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
 
         className="flex-1 overflow-y-auto px-10 py-4 space-y-4">
         {messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} loading={loading} />
+          <MessageBubble key={`${msg.role}_${i}`} message={msg} loading={loading} />
         ))}
 
 
@@ -240,7 +421,8 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
       </div>
 
       {/* Input (fixed bottom) */}
-      <div className=" bg-white  px-10">
+      <div className="flex  flex-col bg-white  px-10">
+        <button onClick={() => runSimulation(dispatch)}>Test Simulation</button>
         <ChatInput
           input={input}
           setInput={setInput}
@@ -249,6 +431,7 @@ export default function ChatPanel({ threadId }: { threadId: string }) {
           pdfId={""}
         />
       </div>
+      <ViewReportModal />
     </div>
   );
 }

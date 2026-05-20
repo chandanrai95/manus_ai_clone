@@ -1,21 +1,25 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Loader2, Paperclip } from "lucide-react";
+import { AppDispatch } from "@/store";
+import { toggleChatPanlePadding, toggleLeftPanels } from "@/store/chatSlice";
+import { Cpu, Loader2, Paperclip, ScreenShareIcon } from "lucide-react";
 import { useRef, useState } from "react"
+import { useDispatch } from "react-redux";
 
-const UploadFileButton = ({ pdfId }: { pdfId: string }) => {
+const ChatInputButtns = () => {
   const [uploadPdfLoading, setUploadPdfLoading] = useState(false);
   const [uploadImgLoading, setUploadImgLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch<AppDispatch>()
 
   return (
     <div className="flex items-center gap-3 text-slate-500">
       {/* Hidden file input */}
       <input type="file" className="hidden" ref={fileInputRef} />
 
-      <button
+      {/* <button
         onClick={() => {
           if (!uploadPdfLoading) {
             // triggerFileInput("pdf");
@@ -40,10 +44,18 @@ const UploadFileButton = ({ pdfId }: { pdfId: string }) => {
             <span>Upload PDF</span>
           </div>
         )}
+      </button> */}
+
+      <button onClick={() => dispatch(toggleChatPanlePadding('computer'))}>
+        <ScreenShareIcon size={15} />
+      </button>
+
+      <button onClick={() => dispatch(toggleLeftPanels())}>
+        <Cpu size={15} />
       </button>
     </div>
 
   )
 }
 
-export default UploadFileButton
+export default ChatInputButtns
